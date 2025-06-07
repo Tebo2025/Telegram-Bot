@@ -9,9 +9,10 @@ bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__)
 
 WEBSITE_URL = "https://bakulifetours.com/"
+ABOUT_URL = "https://bakulifetours.com/about/"
 WHATSAPP_URL = "https://wa.me/994774186543?text=Hi%2C+I+want+to+book+a+tour"
+PACKAGES_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScpVB0Bl1zGAAwlTCCJ_ZghIaJFY382_WgBM5vtQ52wQMOx6Q/viewform"
 
-# Ana menyu
 @bot.message_handler(commands=['start'])
 def send_start(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
@@ -39,10 +40,10 @@ Explore Azerbaijan with our all-in-one travel services:
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    def add_buttons():
+    def add_buttons(custom_url=WEBSITE_URL):
         markup = types.InlineKeyboardMarkup()
         markup.add(
-            types.InlineKeyboardButton("🌐 Learn More", url=WEBSITE_URL),
+            types.InlineKeyboardButton("🌐 Learn More", url=custom_url),
             types.InlineKeyboardButton("📲 Book Now", url=WHATSAPP_URL)
         )
         return markup
@@ -72,24 +73,39 @@ def callback_handler(call):
         )
         bot.edit_message_text("Select a transfer option:", call.message.chat.id, call.message.message_id, reply_markup=markup)
 
-    elif call.data in ['packages', 'visa', 'hotels', 'support', 'about']:
-        if call.data == 'packages':
-            text = "🎉 **Group & Custom Packages**\n\nWhether it's family, friends, or corporate travel — we build packages tailored to your group size & preferences. Includes transportation, accommodation, guided tours, meals, and full support throughout your journey."
-        elif call.data == 'visa':
+    elif call.data == 'packages':
+        text = "🎉 **Group & Custom Packages**\n\nTell us your group size, travel dates, interests, and any special requests – and we’ll create a fully customized travel plan for you!"
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton("📝 Fill the Form", url=PACKAGES_FORM_URL),
+            types.InlineKeyboardButton("🔙 Back to Main Menu", callback_data='main')
+        )
+        bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup)
+
+    elif call.data in ['visa', 'hotels', 'support', 'about']:
+        if call.data == 'visa':
             text = "🛂 **Visa Support**\n\nWe assist travelers in obtaining fast and reliable e-visas for Azerbaijan. Our team helps you through the process, document submission, and keeps you updated at every stage."
+            markup = add_buttons()
         elif call.data == 'hotels':
             text = "🏨 **Hotel Bookings**\n\nChoose from 3★ to 5★ hotels across Baku and regions. Central locations, scenic views, breakfast options, and great deals are part of every booking. We find what fits your budget and comfort."
+            markup = add_buttons()
         elif call.data == 'support':
             text = "💬 **Customer Support**\n\nWe’re here to help 24/7! Whether you have questions about tours, transfers, or booking – just reach out. Human support, no bots."
+            markup = types.InlineKeyboardMarkup()
+            markup.add(
+                types.InlineKeyboardButton("📲 Contact Us", url=WHATSAPP_URL)
+            )
         elif call.data == 'about':
             text = "📖 **About Baku Life Tours**\n\nWe are a Baku-based travel agency providing trusted service since 2017. With 100,000+ happy travelers, our specialties include daily tours, airport transfers, hotel booking, visa help, and tailored group packages."
-        markup = add_buttons()
+            markup = types.InlineKeyboardMarkup()
+            markup.add(
+                types.InlineKeyboardButton("🌐 Learn More", url=ABOUT_URL)
+            )
         bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup)
 
     elif call.data == 'main':
         send_start(call.message)
 
-    # Turların geniş təsviri
     elif call.data == 'baku_tour':
         bot.send_message(call.message.chat.id, "🏙️ **Baku City Tour**\n\nDiscover the charm of Baku with our city tour that covers iconic landmarks such as Flame Towers, Highland Park, the historical Old City (Icherisheher), Maiden Tower, Nizami Street, and the stunning Baku Boulevard. Includes transport & guide.", reply_markup=add_buttons())
     elif call.data == 'gobustan':
