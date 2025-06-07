@@ -8,6 +8,9 @@ API_TOKEN = '7294673307:AAHEKkdBwnHfp4QImiELzjxyyLrzqBsF_uw'
 bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__)
 
+WEBSITE_URL = "https://bakulifetours.com/"
+WHATSAPP_URL = "https://wa.me/994774186543?text=Hi%2C+I+want+to+book+a+tour"
+
 # Ana menyu
 @bot.message_handler(commands=['start'])
 def send_start(message):
@@ -36,6 +39,14 @@ Explore Azerbaijan with our all-in-one travel services:
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
+    def add_buttons():
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton("🌐 Learn More", url=WEBSITE_URL),
+            types.InlineKeyboardButton("📲 Book Now", url=WHATSAPP_URL)
+        )
+        return markup
+
     if call.data == 'tours':
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
@@ -45,7 +56,7 @@ def callback_handler(call):
             types.InlineKeyboardButton("🌲 Gabala Day Trip", callback_data='gabala'),
             types.InlineKeyboardButton("🏛 Sheki Cultural Tour", callback_data='sheki'),
             types.InlineKeyboardButton("🍷 Shamakhi Wine", callback_data='shamakhi'),
-            types.InlineKeyboardButton("📩 WhatsApp", url='https://wa.me/994774186543?text=Hi%2C+I+want+to+book+a+tour'),
+            types.InlineKeyboardButton("📩 WhatsApp", url=WHATSAPP_URL),
             types.InlineKeyboardButton("🔙 Back to Main Menu", callback_data='main')
         )
         bot.edit_message_text("Select a tour to learn more:", call.message.chat.id, call.message.message_id, reply_markup=markup)
@@ -56,27 +67,23 @@ def callback_handler(call):
             types.InlineKeyboardButton("🛫 Airport ↔ Hotel", callback_data='airport'),
             types.InlineKeyboardButton("🚘 Round Trip Transfers", callback_data='roundtrip'),
             types.InlineKeyboardButton("🚖 VIP Vehicle Rental", callback_data='vip'),
-            types.InlineKeyboardButton("📩 WhatsApp", url='https://wa.me/994774186543?text=Hi%2C+I+need+a+transfer'),
+            types.InlineKeyboardButton("📩 WhatsApp", url=WHATSAPP_URL),
             types.InlineKeyboardButton("🔙 Back to Main Menu", callback_data='main')
         )
         bot.edit_message_text("Select a transfer option:", call.message.chat.id, call.message.message_id, reply_markup=markup)
 
-    elif call.data == 'packages' or call.data == 'visa' or call.data == 'hotels' or call.data == 'support' or call.data == 'about':
-        markup = types.InlineKeyboardMarkup(row_width=1)
+    elif call.data in ['packages', 'visa', 'hotels', 'support', 'about']:
         if call.data == 'packages':
-            text = "🎉 Tell us your group size, dates and interests – and we’ll build your perfect package!"
+            text = "🎉 **Group & Custom Packages**\n\nWhether it's family, friends, or corporate travel — we build packages tailored to your group size & preferences. Includes transportation, accommodation, guided tours, meals, and full support throughout your journey."
         elif call.data == 'visa':
-            text = "🛂 We assist with tourist e-visas. Just tell us your nationality and travel dates."
+            text = "🛂 **Visa Support**\n\nWe assist travelers in obtaining fast and reliable e-visas for Azerbaijan. Our team helps you through the process, document submission, and keeps you updated at every stage."
         elif call.data == 'hotels':
-            text = "🏨 From 3★ to 5★ hotels, we offer the best stays in top locations."
+            text = "🏨 **Hotel Bookings**\n\nChoose from 3★ to 5★ hotels across Baku and regions. Central locations, scenic views, breakfast options, and great deals are part of every booking. We find what fits your budget and comfort."
         elif call.data == 'support':
-            text = "💬 Contact our support team 24/7 via WhatsApp."
+            text = "💬 **Customer Support**\n\nWe’re here to help 24/7! Whether you have questions about tours, transfers, or booking – just reach out. Human support, no bots."
         elif call.data == 'about':
-            text = "📖 Baku Life Tours: Trusted by 100,000+ travelers since 2017."
-        markup.add(
-            types.InlineKeyboardButton("📩 WhatsApp", url='https://wa.me/994774186543'),
-            types.InlineKeyboardButton("🔙 Back to Main Menu", callback_data='main')
-        )
+            text = "📖 **About Baku Life Tours**\n\nWe are a Baku-based travel agency providing trusted service since 2017. With 100,000+ happy travelers, our specialties include daily tours, airport transfers, hotel booking, visa help, and tailored group packages."
+        markup = add_buttons()
         bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup)
 
     elif call.data == 'main':
@@ -84,34 +91,23 @@ def callback_handler(call):
 
     # Turların geniş təsviri
     elif call.data == 'baku_tour':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🏙️ **Baku City Tour**\n\nDiscover the charm of Baku with our city tour that covers iconic landmarks such as Flame Towers, Highland Park, the historical Old City (Icherisheher), Maiden Tower, Nizami Street, and the stunning Baku Boulevard. Our guide will share fascinating stories about Azerbaijan’s past and present. Includes transportation and local guide.")
+        bot.send_message(call.message.chat.id, "🏙️ **Baku City Tour**\n\nDiscover the charm of Baku with our city tour that covers iconic landmarks such as Flame Towers, Highland Park, the historical Old City (Icherisheher), Maiden Tower, Nizami Street, and the stunning Baku Boulevard. Includes transport & guide.", reply_markup=add_buttons())
     elif call.data == 'gobustan':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🪨 **Gobustan & Absheron Tour**\n\nA journey to ancient rock carvings and mud volcanoes at Gobustan National Park followed by a trip to Absheron Peninsula to visit Ateshgah Fire Temple and Yanar Dag (Burning Mountain). Perfect for history and nature lovers!")
+        bot.send_message(call.message.chat.id, "🪨 **Gobustan & Absheron Tour**\n\nExplore ancient carvings, mud volcanoes at Gobustan, and visit Fire Temple and Burning Mountain in Absheron. Full-day cultural and natural exploration.", reply_markup=add_buttons())
     elif call.data == 'shahdag':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🏔 **Shahdag Mountain Adventure**\n\nA full-day adventure to Azerbaijan’s famous mountain resort. Enjoy snow sports in winter or hiking, quad biking, and cable cars in summer. Ideal for thrill-seekers and nature enthusiasts.")
+        bot.send_message(call.message.chat.id, "🏔 **Shahdag Mountain Adventure**\n\nEscape to the mountains! Skiing, cable cars, snow activities in winter or hiking & ATV rides in summer. Perfect for nature and thrill seekers.", reply_markup=add_buttons())
     elif call.data == 'gabala':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🌲 **Gabala Day Trip**\n\nExplore the green landscapes of Gabala. Visit Nohur Lake, Tufandag Mountain Resort, shooting club, waterfalls, and enjoy local cuisine. Great for families and relaxation.")
+        bot.send_message(call.message.chat.id, "🌲 **Gabala Day Trip**\n\nNature-filled day visiting Nohur Lake, waterfalls, Tufandag resort, and local attractions. Relaxing atmosphere and fresh mountain air guaranteed.", reply_markup=add_buttons())
     elif call.data == 'sheki':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🏛 **Sheki Cultural Tour**\n\nVisit the historical city of Sheki. Highlights include the Sheki Khan’s Palace, Karvansaray, local sweet shops (halva), and artisans making silk and stained glass. A cultural gem of the Caucasus.")
+        bot.send_message(call.message.chat.id, "🏛 **Sheki Cultural Tour**\n\nExplore Sheki’s history: Khan Palace, Karvansaray, local cuisine and artisans. A beautiful town rich in tradition and culture.", reply_markup=add_buttons())
     elif call.data == 'shamakhi':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🍷 **Shamakhi Wine Experience**\n\nTaste Azerbaijan’s best wines at Shamakhi’s vineyards. Includes wine tasting, cellar tour, and traditional lunch in a scenic location. A relaxing and tasteful experience for wine lovers.")
-
-    # Transfer alt-menular
+        bot.send_message(call.message.chat.id, "🍷 **Shamakhi Wine Experience**\n\nVisit local vineyards, enjoy tastings, cellar tours and traditional lunch. Scenic and serene journey through wine country.", reply_markup=add_buttons())
     elif call.data == 'airport':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🛬 **Airport ↔ Hotel Transfers**\n\n24/7 reliable transfers from Heydar Aliyev Airport to any hotel in Baku. Clean vehicles, English-speaking driver available, and optional name sign at the arrival gate.")
+        bot.send_message(call.message.chat.id, "🛫 **Airport ↔ Hotel Transfers**\n\n24/7 transfer from Heydar Aliyev Airport to any hotel in Baku. Meet & greet service, clean cars, multilingual drivers.", reply_markup=add_buttons())
     elif call.data == 'roundtrip':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🚘 **Round Trip Transfers**\n\nComfortable and safe transfers from Baku to regions like Gabala, Shahdag, Sheki, Guba, and back. Vehicles with AC, multiple seat options, and professional drivers.")
+        bot.send_message(call.message.chat.id, "🚘 **Round Trip Regional Transfers**\n\nRound-trip rides to Gabala, Sheki, Shahdag, and more. Safe, reliable, and comfortable with flexible pick-up times.", reply_markup=add_buttons())
     elif call.data == 'vip':
-        bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "🚖 **VIP Vehicle Rental**\n\nBook premium vehicles such as Mercedes V-Class, Sprinter, and SUVs with a private driver. Perfect for business trips, delegations, and luxury travel.")
+        bot.send_message(call.message.chat.id, "🚖 **VIP Vehicle Rental**\n\nPremium cars including V-Class, Sprinter, SUV with driver. Ideal for business travelers, events, delegations, and luxury clients.", reply_markup=add_buttons())
 
 @app.route(f'/{API_TOKEN}', methods=['POST'])
 def webhook():
