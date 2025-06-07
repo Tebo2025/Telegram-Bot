@@ -1,6 +1,7 @@
 import telebot
 from flask import Flask, request
 import os
+from telebot import types
 
 API_TOKEN = '7294673307:AAHEKkdBwnHfp4QImiELzjxyyLrzqBsF_uw'
 
@@ -9,7 +10,18 @@ app = Flask(__name__)
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
-    bot.reply_to(message, """
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    btn1 = types.InlineKeyboardButton("🚌 Tours", callback_data='tours')
+    btn2 = types.InlineKeyboardButton("🚘 Transfers", callback_data='transfers')
+    btn3 = types.InlineKeyboardButton("🎉 Packages", callback_data='packages')
+    btn4 = types.InlineKeyboardButton("🛂 Visa", callback_data='visa')
+    btn5 = types.InlineKeyboardButton("🏨 Hotels", callback_data='hotels')
+    btn6 = types.InlineKeyboardButton("💬 Support", callback_data='support')
+    btn7 = types.InlineKeyboardButton("📖 About", callback_data='about')
+
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
+
+    bot.send_message(message.chat.id, """
 👋 Welcome to Baku Life Tours!
 
 Explore Azerbaijan with our all-in-one travel services:
@@ -20,7 +32,24 @@ Explore Azerbaijan with our all-in-one travel services:
 👨‍👩‍👧‍👦 Group & Corporate Packages
 
 👇 Please choose a service to begin.
-    """)
+    """, reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    if call.data == 'tours':
+        send_tours(call.message)
+    elif call.data == 'transfers':
+        send_transfers(call.message)
+    elif call.data == 'packages':
+        send_packages(call.message)
+    elif call.data == 'visa':
+        send_visa(call.message)
+    elif call.data == 'hotels':
+        send_hotels(call.message)
+    elif call.data == 'support':
+        send_support(call.message)
+    elif call.data == 'about':
+        send_about(call.message)
 
 @bot.message_handler(commands=['tours'])
 def send_tours(message):
@@ -34,7 +63,7 @@ def send_tours(message):
 • Sheki Cultural Tour  
 • Shamakhi Wine Experience
 
-📲 DM us to book or type the tour name for details.
+📲 DM us to book or write us on WhatsApp - +994774186543.
     """)
 
 @bot.message_handler(commands=['transfers'])
@@ -47,7 +76,7 @@ def send_transfers(message):
 • VIP Vehicles: V-Class, Sprinter, SUVs
 
 ✅ Private & group options available  
-📅 Book via DM or tell us your route & date!
+📅 Book via DM or tell us your route & date on WhatsApp!
     """)
 
 @bot.message_handler(commands=['packages'])
@@ -58,7 +87,7 @@ def send_packages(message):
 Whether it's family, friends, or corporate travel —
 We build packages tailored to your group size & preferences.
 
-🧾 Tell us:
+🧾 Tell us these information on WhatsApp:
 • How many people?
 • Travel dates?
 • Interests?
@@ -75,7 +104,7 @@ def send_visa(message):
 ✅ Tourist visa assistance  
 ✅ Full guidance step-by-step
 
-Send us your nationality & preferred travel dates to begin.
+Send us your nationality & preferred travel dates on WhatsApp to begin.
     """)
 
 @bot.message_handler(commands=['hotels'])
@@ -98,7 +127,7 @@ def send_support(message):
 
 Our support team is available 24/7.  
 Click below to chat with a human:  
-📩 @bakulifetravel
+📩 +994774186543
     """)
 
 @bot.message_handler(commands=['about'])
